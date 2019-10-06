@@ -1,0 +1,38 @@
+version: '3.3'
+
+services:
+  app:
+    image: wordpress:latest
+    container_name: "${PROJECT_NAME}${PROJECT_SEPARATOR}app"
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "8000:80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: project
+      WORDPRESS_DB_PASSWORD: project
+      WORDPRESS_DB_NAME: project
+  apache:
+    build: ./Dockerfiles/webserver
+    container_name: symfony-apache
+    volumes:
+      - ./Apache:/etc/apache2/sites-enabled
+      - ./Symfony:/var/www/
+    ports:
+      - ${APACHE_HOST_PORT}:${APACHE_CONTAINER_PORT}
+  db:
+    image: mysql:5.7
+    container_name: "${PROJECT_NAME}${PROJECT_SEPARATOR}mysql"
+    volumes:
+      - ./devops/volumes/mysql:/var/lib/mysql
+      - ./:/var/www/html
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: project
+      MYSQL_DATABASE: project
+      MYSQL_USER: project
+      MYSQL_PASSWORD: project
+    ports:
+      - '8002:80'
