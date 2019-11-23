@@ -1,38 +1,44 @@
 version: '3.3'
 
 services:
-  app:
-    image: wordpress:latest
-    container_name: "${PROJECT_NAME}${PROJECT_SEPARATOR}app"
-    volumes:
-      - ./:/var/www/html
-    ports:
-      - "8000:80"
-    restart: always
+
+  php-fpm:
+    build: ./devops/docker/services/php-fpm
+    container_name: "${PROJECT_NAME}${PROJECT_SEPARATOR}php-fpm"
     environment:
-      WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: project
-      WORDPRESS_DB_PASSWORD: project
-      WORDPRESS_DB_NAME: project
+      WORKDIR_PROJECT: "/var/www/html"
+    volumes:
+      - ${PROJECT_DEFAULT_HOST}:${PROJECT_DEFAULT_CONTAINER}
+
   apache:
-    build: ./Dockerfiles/webserver
-    container_name: symfony-apache
-    volumes:
-      - ./Apache:/etc/apache2/sites-enabled
-      - ./Symfony:/var/www/
-    ports:
-      - ${APACHE_HOST_PORT}:${APACHE_CONTAINER_PORT}
-  db:
-    image: mysql:5.7
-    container_name: "${PROJECT_NAME}${PROJECT_SEPARATOR}mysql"
-    volumes:
-      - ./devops/volumes/mysql:/var/lib/mysql
-      - ./:/var/www/html
-    restart: always
+    build: ./devops/docker/services/apache
+    container_name: "${PROJECT_NAME}${PROJECT_SEPARATOR}apache"
     environment:
-      MYSQL_ROOT_PASSWORD: project
-      MYSQL_DATABASE: project
-      MYSQL_USER: project
-      MYSQL_PASSWORD: project
+      FPM_HOST: "${PROJECT_NAME}${PROJECT_SEPARATOR}php-fpm:9000"
+    volumes:
+      - ./devops/docker/config/apache2/sites-enabled:/etc/apache2/sites-enabled
+      - ${PROJECT_DEFAULT_HOST}:${PROJECT_DEFAULT_CONTAINER}
     ports:
-      - '8002:80'
+      - 7000:80
+
+  mysql:
+    image:  mysql:5.7
+    container_name: "${PROJECT_NAME}${PROJECT_SEPARATOR}mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${PROJECT_NAME}${PROJECT_SEPARATOR}db"
+      MYSQL_DATABASE: "${PROJECT_NAME}${PROJECT_SEPARATOR}db"
+      MYSQL_USER: "${PROJECT_NAME}${PROJECT_SEPARATOR}db"
+      MYSQL_PASSWORD: "${PROJECT_NAME}${PROJECT_SEPARATOR}db"
+    volumes:
+      - ${PROJECT_DEFAULT_HOST}:${PROJECT_DEFAULT_CONTAINER}
+      - ./devops/docker/volume/mysql:/var/lib/mysql
+      - ./devops/docker/logs/mysql:/var/log/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: "${PROJECT_NAME}${PROJECT_SEPARATOR}phpmyadmin"
+    environment:
+      PMA_HOST: "${PROJECT_NAME}${PROJECT_SEPARATOR}mysql"
+      PMA_PORT: 3306
+    ports:
+      - 7100:80
