@@ -16,4 +16,22 @@ RUN apt-get update \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug
 
+RUN apt-get install -y p7zip \
+    p7zip-full \
+    unace \
+    zip \
+    unzip \
+    xz-utils \
+    sharutils \
+    uudeview \
+    mpack \
+    arj \
+    cabextract \
+    file-roller \
+    && rm -rf /var/lib/apt/lists/*
+
+# Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+
 WORKDIR WORKDIR_PROJECT

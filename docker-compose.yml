@@ -29,6 +29,7 @@ services:
       MYSQL_DATABASE: "${PROJECT_NAME}${PROJECT_SEPARATOR}db"
       MYSQL_USER: "${PROJECT_NAME}${PROJECT_SEPARATOR}db"
       MYSQL_PASSWORD: "${PROJECT_NAME}${PROJECT_SEPARATOR}db"
+    command: ["--default-authentication-plugin=mysql_native_password"]
     volumes:
       - ${PROJECT_DEFAULT_HOST}:${PROJECT_DEFAULT_CONTAINER}
       - ./devops/docker/volume/mysql:/var/lib/mysql
@@ -40,5 +41,7 @@ services:
     environment:
       PMA_HOST: "${PROJECT_NAME}${PROJECT_SEPARATOR}mysql"
       PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: "${PROJECT_NAME}${PROJECT_SEPARATOR}db"
     ports:
       - 7100:80
