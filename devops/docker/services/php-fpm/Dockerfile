@@ -6,6 +6,8 @@ RUN pecl install apcu
 
 RUN echo "extension=apcu.so" > /usr/local/etc/php/conf.d/apcu.ini
 
+RUN apt update  && apt install -y  zip  && docker-php-ext-install opcache
+
 #RUN apt-get update \
 #    && docker-php-ext-install bcmath mbstring \
 #    && docker-php-ext-install pdo_mysql \
